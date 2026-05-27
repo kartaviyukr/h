@@ -1,0 +1,30 @@
+services:
+  db:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_USER: neuromarket
+      POSTGRES_PASSWORD: neuromarket
+      POSTGRES_DB: neuromarket
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neuromarket"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: ./services/api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://neuromarket:neuromarket@db:5432/neuromarket
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
