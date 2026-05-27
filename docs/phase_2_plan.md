@@ -148,14 +148,27 @@ services/api/
 - Google OAuth (см. открытый вопрос).
 - Сброс пароля, подтверждение email, refresh-токены — позже при необходимости.
 
-## Открытые вопросы (нужно подтверждение)
-1. **Google OAuth**: в Фазе 2 делаем только email/пароль, Google — отдельным PR
-   позже? (Рекомендую да.)
-2. **SQLAlchemy sync vs async**: предлагаю sync для простоты. Ок?
-3. **JWT-библиотека**: pyjwt. Ок?
-4. **Тестовая БД**: гоняем против Postgres-сервиса (compose/CI service), без SQLite. Ок?
-5. **Flutter UI логина/профиля**: оставить вне Фазы 2 (отдельная фаза), или
-   включить минимальные экраны сюда?
+## Решения (подтверждено)
+1. **Google OAuth** — включаем в Фазу 2.
+2. **SQLAlchemy** — sync.
+3. **JWT** — pyjwt (`pyjwt[crypto]` для RS256 при проверке Google-токенов).
+4. **Тестовая БД** — Postgres-сервис (compose/CI service), без SQLite.
+5. **Flutter UI** — вне Фазы 2 (только бэкенд).
 
-После подтверждения реализую один PR: модели+миграции, auth, профиль, тесты;
-прогоню ruff и (где возможно) pytest.
+## Google OAuth — дизайн (backend-only, без redirect-флоу)
+Клиент (позже) получает **Google ID token** через нативный Google Sign-In и шлёт
+его на бэк. Бэк проверяет токен и выпускает наш JWT. Redirect-флоу и client secret
+на сервере не нужны.
+- `POST /auth/google` — body `{id_token}`.
+- Проверка в `app/integrations/google_oauth.py`: подпись по Google JWKS
+  (`https://www.googleapis.com/oauth2/v3/certs`, через `PyJWKClient`),
+  `aud == GOOGLE_CLIENT_ID`, `iss in {accounts.google.com, https://accounts.google.com}`.
+- Из токена берём `email` и `sub` (Google user id).
+- find-or-create: если есть user с таким `google_sub` или `email` — логиним,
+  иначе создаём (password_hash NULL). Возвращаем наш `TokenOut`.
+- Поля users: `password_hash` **nullable**, добавляем `google_sub text UNIQUE NULL`.
+- `.env`: `GOOGLE_CLIENT_ID` (в `.env.example`, пустой).
+- Тесты: мокаем верификатор Google (без реального сетевого вызова).
+
+После подтверждения реализую один PR: модели+миграции, auth (email/пароль +
+Google), профиль, тесты; прогоню ruff и (где возможно) pytest.

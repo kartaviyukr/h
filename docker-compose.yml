@@ -21,7 +21,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://neuromarket:neuromarket@db:5432/neuromarket
+      DATABASE_URL: postgresql+psycopg://neuromarket:neuromarket@db:5432/neuromarket
+      JWT_SECRET: dev-secret-change-me
     depends_on:
       db:
         condition: service_healthy

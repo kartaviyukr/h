@@ -8,8 +8,15 @@ class Settings(BaseSettings):
 
     app_name: str = "Neuromarket API"
 
-    # Filled in later phases; declared here as the single source of config.
-    database_url: str = "postgresql://neuromarket:neuromarket@localhost:5432/neuromarket"
+    database_url: str = "postgresql+psycopg://neuromarket:neuromarket@localhost:5432/neuromarket"
+
+    # Auth
+    jwt_secret: str = "change-me-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 60 * 24
+    google_client_id: str = ""
+
+    # Filled in later phases.
     deepseek_api_key: str = ""
     supabase_url: str = ""
     supabase_anon_key: str = ""
