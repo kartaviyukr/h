@@ -18,6 +18,10 @@ class Settings(BaseSettings):
 
     # Filled in later phases.
     deepseek_api_key: str = ""
+    deepseek_base_url: str = "https://api.deepseek.com"
+    deepseek_model: str = "deepseek-chat"
+    deepseek_timeout_s: float = 60.0
+
     supabase_url: str = ""
     supabase_anon_key: str = ""
 
