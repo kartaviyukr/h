@@ -1,0 +1,8 @@
+# Список URL рецептов для ингестии в RAG-индекс (по одному на строку).
+# Подходят страницы с разметкой schema.org Recipe (JSON-LD).
+# Строки, начинающиеся с #, игнорируются.
+# Запуск: python -m app.scripts.ingest_recipes --source data/recipe_seeds.txt
+#
+# Примеры (замените на реальные URL рецептов):
+# https://example.com/recipes/kurinyy-sup
+# https://example.com/recipes/ovsyanka

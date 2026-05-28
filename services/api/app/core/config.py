@@ -22,6 +22,12 @@ class Settings(BaseSettings):
     deepseek_model: str = "deepseek-chat"
     deepseek_timeout_s: float = 60.0
 
+    # RAG (рецепты)
+    rag_enabled: bool = True
+    embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    embedding_dim: int = 384
+    rag_top_k: int = 5
+
     supabase_url: str = ""
     supabase_anon_key: str = ""
 

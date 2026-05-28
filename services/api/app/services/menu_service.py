@@ -4,13 +4,16 @@ import uuid
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.integrations.deepseek import DeepSeekError, generate_menu_json
 from app.models.menu import Menu
 from app.models.profile import Profile
+from app.models.recipe import Recipe
 from app.repositories.menu_repo import MenuRepository
 from app.repositories.profile_repo import ProfileRepository
 from app.schemas.menu import MenuGenerateIn, MenuOut
 from app.services.nutrition import correct_macros
+from app.services.recipe_index import RecipeIndexService
 
 _SYSTEM_PROMPT = (
     "Ты — нутрициолог-составитель меню. Отвечай СТРОГО валидным JSON-объектом "
@@ -71,16 +74,52 @@ def _build_user_prompt(profile: Profile | None, request: MenuGenerateIn) -> str:
     return "\n".join(lines)
 
 
+def _build_retrieval_query(profile: Profile | None, request: MenuGenerateIn) -> str:
+    parts: list[str] = ["рецепты для здорового меню"]
+    if profile:
+        if profile.goal:
+            parts.append(f"цель {profile.goal}")
+        if profile.allergies:
+            parts.append("без " + ", ".join(profile.allergies))
+    if request.note:
+        parts.append(request.note)
+    return ", ".join(parts)
+
+
+def _recipes_context(recipes: list[Recipe]) -> str:
+    lines = ["Используй эти проверенные рецепты как основу меню:"]
+    for r in recipes:
+        ingredients = ", ".join(r.ingredients[:12]) if r.ingredients else ""
+        lines.append(f"- {r.title}: {ingredients}")
+    return "\n".join(lines)
+
+
 class MenuService:
     def __init__(self, session: Session) -> None:
         self.session = session
         self.menus = MenuRepository(session)
         self.profiles = ProfileRepository(session)
+        self.recipe_index = RecipeIndexService(session)
+
+    def _retrieve_recipes(self, profile: Profile | None, request: MenuGenerateIn) -> list[Recipe]:
+        if not settings.rag_enabled:
+            return []
+        try:
+            query = _build_retrieval_query(profile, request)
+            return list(self.recipe_index.retrieve(query, settings.rag_top_k))
+        except Exception:
+            # RAG is best-effort: fall back to pure LLM generation on any failure.
+            self.session.rollback()
+            return []
 
     def generate(self, user_id: uuid.UUID, request: MenuGenerateIn) -> tuple[Menu, bool]:
         profile = self.profiles.get(user_id)
         system_prompt = _SYSTEM_PROMPT
         user_prompt = _build_user_prompt(profile, request)
+
+        recipes = self._retrieve_recipes(profile, request)
+        if recipes:
+            user_prompt += "\n\n" + _recipes_context(recipes)
 
         try:
             raw = generate_menu_json(system_prompt, user_prompt)
@@ -95,6 +134,7 @@ class MenuService:
             "include_snacks": request.include_snacks,
             "note": request.note,
             "target_kcal": profile.target_kcal if profile else None,
+            "recipe_ids": [str(r.id) for r in recipes],
         }
         menu = self.menus.create(
             user_id=user_id,
