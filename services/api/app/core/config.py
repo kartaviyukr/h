@@ -28,6 +28,10 @@ class Settings(BaseSettings):
     embedding_dim: int = 384
     rag_top_k: int = 5
 
+    # Pricing (Phase 5)
+    price_catalog_path: str = "data/price_catalog.json"
+    price_providers: str = ""  # comma-separated provider codes; empty = all from catalog
+
     supabase_url: str = ""
     supabase_anon_key: str = ""
 

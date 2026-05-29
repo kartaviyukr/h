@@ -5,7 +5,7 @@ from sqlalchemy import text
 from app.db.base import Base
 from app.db.session import SessionLocal, engine
 from app.main import app
-from app.models import Menu, Profile, Recipe, User  # noqa: F401  (register metadata)
+from app.models import BasketQuote, Menu, Profile, Recipe, User  # noqa: F401  (register metadata)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -23,7 +23,10 @@ def _clean_tables():
     yield
     with engine.begin() as conn:
         conn.execute(
-            text("TRUNCATE TABLE menus, profiles, recipes, users RESTART IDENTITY CASCADE")
+            text(
+                "TRUNCATE TABLE basket_quotes, menus, profiles, recipes, users "
+                "RESTART IDENTITY CASCADE"
+            )
         )
 
 

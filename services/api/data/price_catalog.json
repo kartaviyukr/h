@@ -1,0 +1,27 @@
+{
+  "providers": [
+    {
+      "code": "demo_a",
+      "name": "Магазин А (демо)",
+      "catalog": [
+        {"keywords": ["курица", "филе"], "name": "Куриное филе охлаждённое", "price_rub": 350, "package_size": 1000, "base_unit": "g"},
+        {"keywords": ["яйца", "яйцо"], "name": "Яйца куриные С1, 10 шт", "price_rub": 110, "package_size": 10, "base_unit": "pcs"},
+        {"keywords": ["овсянка", "овсяные хлопья"], "name": "Овсяные хлопья 500 г", "price_rub": 90, "package_size": 500, "base_unit": "g"},
+        {"keywords": ["молоко"], "name": "Молоко 2.5% 1 л", "price_rub": 95, "package_size": 1000, "base_unit": "ml"},
+        {"keywords": ["творог"], "name": "Творог 5% 200 г", "price_rub": 110, "package_size": 200, "base_unit": "g"},
+        {"keywords": ["рыба", "лосось"], "name": "Филе лосося 300 г", "price_rub": 520, "package_size": 300, "base_unit": "g"}
+      ]
+    },
+    {
+      "code": "demo_b",
+      "name": "Магазин Б (демо)",
+      "catalog": [
+        {"keywords": ["курица", "филе"], "name": "Филе куриное 700 г", "price_rub": 290, "package_size": 700, "base_unit": "g"},
+        {"keywords": ["яйца", "яйцо"], "name": "Яйца, 10 шт", "price_rub": 125, "package_size": 10, "base_unit": "pcs"},
+        {"keywords": ["овсянка", "овсяные хлопья"], "name": "Хлопья овсяные 400 г", "price_rub": 75, "package_size": 400, "base_unit": "g"},
+        {"keywords": ["молоко"], "name": "Молоко 3.2% 1 л", "price_rub": 105, "package_size": 1000, "base_unit": "ml"},
+        {"keywords": ["творог"], "name": "Творог 9% 180 г", "price_rub": 130, "package_size": 180, "base_unit": "g"}
+      ]
+    }
+  ]
+}
