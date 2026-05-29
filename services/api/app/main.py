@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app import __version__
-from app.api import auth, health, menu, pricing, profile
+from app.api import auth, cart, health, menu, pricing, profile
 from app.core.config import settings
 
 
@@ -12,6 +12,8 @@ def create_app() -> FastAPI:
     app.include_router(profile.router)
     app.include_router(menu.router)
     app.include_router(pricing.router)
+    app.include_router(cart.menu_router)
+    app.include_router(cart.cart_router)
     return app
 
 

@@ -34,3 +34,12 @@ class BasketRepository:
             .order_by(BasketQuote.created_at.desc())
             .limit(1)
         )
+
+    def get_for_user(
+        self, user_id: uuid.UUID, quote_id: uuid.UUID
+    ) -> BasketQuote | None:
+        return self.session.scalar(
+            select(BasketQuote).where(
+                BasketQuote.id == quote_id, BasketQuote.user_id == user_id
+            )
+        )
